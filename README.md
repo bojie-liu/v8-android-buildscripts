@@ -47,3 +47,7 @@ yarn start
 ```
 
 Could further check real build steps for CircleCI from [CircleCI Config](https://github.com/Kudo/v8-android-buildscripts/blob/master/.circleci/config.yml).
+
+### FAQ
+Q: 无法打开 xxx 因为无法验证开发者。
+A: 点取消，打开系统偏好设置-安全性与隐私-允许从App Store下载的App，点击旁边的"仍然允许"。下次再执行命令弹出的框选打开。

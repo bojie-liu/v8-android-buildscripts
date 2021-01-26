@@ -90,7 +90,9 @@ function build_arch()
     exit 1
   fi
 
-  echo "Build v8 ${arch} variant NO_INTL=${NO_INTL}"
+  echo "Build v8 ${arch} variant NO_INTL=${NO_INTL} ${PWD}"
+  # somewhere restores eu-strip before every build, we force overwrite just before build. 
+  cp ./android-ndk-r19c/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip ./buildtools/third_party/eu-strip/bin/eu-strip
   gn gen --args="${GN_ARGS_BASE} ${GN_ARGS_BUILD_TYPE} target_cpu=\"${arch}\"" "out.v8.${arch}"
 
   if [[ ${MKSNAPSHOT_ONLY} = "1" ]]; then
@@ -112,8 +114,10 @@ function build_arch()
 }
 
 if [[ ${PLATFORM} = "android" ]]; then
-  build_arch "arm"
-  build_arch "x86"
+  if [[ "$(uname)" != "Darwin" ]]; then
+    build_arch "arm"
+    build_arch "x86"
+  fi
   build_arch "arm64"
   build_arch "x64"
 elif [[ ${PLATFORM} = "ios" ]]; then

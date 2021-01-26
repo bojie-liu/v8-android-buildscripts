@@ -19,9 +19,17 @@ source $(dirname $0)/env.sh
 function installNDK() {
   pushd .
   cd "${V8_DIR}"
-  wget -q https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-linux-x86_64.zip
-  unzip -q android-ndk-${NDK_VERSION}-linux-x86_64.zip
-  rm -f android-ndk-${NDK_VERSION}-linux-x86_64.zip
+  if [[ "$(uname)" == "Darwin" ]]; then
+    curl https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-darwin-x86_64.zip -o android-ndk-${NDK_VERSION}-darwin-x86_64.zip
+    unzip -q android-ndk-${NDK_VERSION}-darwin-x86_64.zip
+    rm -f android-ndk-${NDK_VERSION}-darwin-x86_64.zip
+    # copy llvm toolchain
+    cp ./v8/android-ndk-${NDK_VERSION}/toolchains/llvm/prebuilt/darwin-x86_64/bin/* ./v8/third_party/android_ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/
+  else
+    wget -q https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-linux-x86_64.zip
+    unzip -q android-ndk-${NDK_VERSION}-linux-x86_64.zip
+    rm -f android-ndk-${NDK_VERSION}-linux-x86_64.zip
+  fi
   popd
 }
 
@@ -43,7 +51,9 @@ fi
 
 if [[ ${PLATFORM} = "android" ]]; then
   gclient sync --deps=android ${GCLIENT_SYNC_ARGS}
-  sudo bash -c 'v8/build/install-build-deps-android.sh'
+  if [[ "$(uname)" != "Darwin" ]]; then
+    sudo bash -c 'v8/build/install-build-deps-android.sh'
+  fi
 
   # Workaround to install missing sysroot
   gclient sync
